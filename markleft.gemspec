@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["github_repo"] = "ssh://github.com/greeenboi/markdown-superset-compiler"
   spec.metadata["source_code_uri"] = "https://github.com/greeenboi/markdown-superset-compiler/tree/master"
   spec.metadata["changelog_uri"] = "https://github.com/greeenboi/markdown-superset-compiler/blob/master/CHANGELOG.md"
 
