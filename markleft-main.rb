@@ -119,8 +119,14 @@ puts myfile
 tokenizer = Tokenizer.new(myfile)
 
 tokens = tokenizer.tokenize
-
+puts "Tokens Recognized"
 tokens.each do |token|
   puts token
 end
 
+parser = Parser.new(tokens)
+node_tree = parser.parse
+puts "Node Tree"
+node_tree.each do |node|
+  puts node
+end
