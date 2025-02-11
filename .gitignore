@@ -8,3 +8,5 @@ sample-code.md
 /spec/reports/
 /tmp/
 *.gem
+sample.md
+*.html
