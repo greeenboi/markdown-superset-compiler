@@ -1,0 +1,12 @@
+module Markleft
+
+  class Tokenizer
+    TOKEN_TYPES: Array[[Symbol, Regexp]]
+
+    @code: String
+
+    def initialize: (String) -> void
+    def tokenize: -> Array[untyped]
+    def tokenize_one_token: -> untyped
+  end
+end

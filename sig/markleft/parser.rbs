@@ -1,0 +1,14 @@
+module Markleft
+  class Parser
+    @tokens: Array[untyped]
+
+    def initialize: (Array[untyped]) -> void
+    def consume: (Symbol) -> untyped
+    def parse: -> Array[untyped]
+    def parse_bold: -> untyped
+    def parse_italics: -> untyped
+    def parse_newline: -> untyped
+    def parse_node: -> untyped
+    def parse_text: -> untyped
+  end
+end

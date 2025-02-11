@@ -1,4 +1,16 @@
 module Markleft
+  BoldNode: untyped
+  ItalicsNode: untyped
+  NewlineNode: untyped
+  TextNode: untyped
+  Token: untyped
   VERSION: String
   # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+  @tokens: untyped
+  @node_tree: untyped
+
+  def self.list_md_files: -> Array[String]
+  def self.select_md_file: (Array[String]) -> String
+  def self.process_file: (String) -> String
+  def self.save_html: (String, String) -> String
 end

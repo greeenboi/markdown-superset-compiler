@@ -1,0 +1,10 @@
+module Markleft
+  class Generator
+    def generate: (untyped) -> String
+    def generate_all: (Array[untyped]) -> String
+    def generate_bold: (untyped) -> String
+    def generate_italics: (untyped) -> String
+    def generate_newline: (untyped) -> String
+    def generate_text: (untyped) -> String
+  end
+end

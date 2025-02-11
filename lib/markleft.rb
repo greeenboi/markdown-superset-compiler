@@ -149,45 +149,13 @@ module Markleft
 
   # ----------------- Main Block ----------------- #
 
-  # puts "Enter the file name"
-  # file_name = gets.chomp.to_s
-  #
-  # raise "#{file_name} not found" unless File.exist?(file_name)
-  #
-  # myfile = File.read(file_name)
-  # puts myfile
-  #
-  # tokenizer = Tokenizer.new(myfile)
-  #
-  # tokens = tokenizer.tokenize
-  # puts "Tokens Recognized"
-  # tokens.each do |token|
-  #   puts token
-  # end
-  #
-  # parser = Parser.new(tokens)
-  # node_tree = parser.parse
-  # puts "Node Tree"
-  # node_tree.each do |node|
-  #   puts node
-  # end
-  #
-  # generator = Generator.new.generate_all(node_tree)
-  # puts generator
-
   CLI::UI::StdoutRouter.enable
 
-  Token = Struct.new(:type, :value)
-  BoldNode = Struct.new(:value)
-  ItalicsNode = Struct.new(:value)
-  NewlineNode = Struct.new(:value)
-  TextNode = Struct.new(:value)
-
-  def list_md_files
+  def self.list_md_files
     Dir.glob("*.md")
   end
 
-  def select_md_file(files)
+  def self.select_md_file(files)
     CLI::UI::Prompt.ask("Select a markdown file to process:") do |handler|
       files.each do |file|
         handler.option(file) { file }
@@ -195,7 +163,7 @@ module Markleft
     end
   end
 
-  def process_file(file_name)
+  def self.process_file(file_name)
     myfile = File.read(file_name)
     html_content = nil
 
@@ -222,7 +190,7 @@ module Markleft
     html_content
   end
 
-  def save_html(file_name, content)
+  def self.save_html(file_name, content)
     html_file_name = file_name.sub(/\.md$/, ".html")
     File.write(html_file_name, content)
     html_file_name
