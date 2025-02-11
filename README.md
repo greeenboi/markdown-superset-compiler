@@ -1,184 +1,78 @@
-1. **
-2. __
-3. 
+# MarkLeft: A Superset to Markdown-to-HTML Compilers
 
-_hellp_
-```ruby
-class Tokenizer
-  TOKEN_TYPES = [
-    [:def, /\bmake\b/],
-    [:end, /\bend\b/],
-    [:identifier,/\b[a-zA-Z]+\b/],
-    [:integer,/\b[0-9]+\b/],
-    [:oparen,/\(/],
-    [:cparen,/\)/],
-    [:comma,/,/],
-  ]
-  def initialize(code)
-    @code = code
-  end
+## Overview
 
-  def tokenize
-    tokens = []
-    until @code.empty?
-      tokens << tokenize_one_token
-      @code = @code.strip
-    end
-    tokens
-  end
+MarkLeft is a powerful and flexible tool designed to extend the capabilities of traditional Markdown-to-HTML compilers. It introduces additional syntax and features to enhance the expressiveness and functionality of Markdown documents.
 
-  def tokenize_one_token
-    TOKEN_TYPES.each do |type, re|
-      re = /\A(#{re})/
-      if @code =~ re
-        value = $1
-        @code = @code[value.length..-1]
-        return Token.new(type,value)
-      end
-    end
-    raise RuntimeError.new(
-      "Unexpected character #{@code.inspect}"
-    )
+## Features
 
-  end
-end
+- **Extended Syntax**: Supports additional formatting options such as bold, italics, and more.
+- **Custom Nodes**: Allows the creation of custom nodes to represent different types of content.
+- **Tokenization and Parsing**: Efficiently tokenizes and parses Markdown content into a structured node tree.
+- **Easy Integration**: Can be easily integrated into existing projects and workflows.
 
-class Parser
-  def initialize(tokens)
-    @tokens = tokens
-  end
+## Installation
 
-  def parse
-    parse_fn
-  end
+To install MarkLeft, clone the repository and navigate to the project directory:
 
-  def parse_fn
-    consume(:def)
-    name = consume(:identifier).value
-    arg_names = parse_arg_name
-    body = parse_expr
-    consume(:end)
-    DefNode.new(name, arg_names, body)
-  end
-
-  def parse_expr
-    if peek(:integer)
-      parse_integer
-    elsif peek(:identifier) && peek(:oparen, 1)
-      parse_call
-    else
-      parse_var_ref
-    end
-  end
-
-  def parse_integer
-    IntegerNode.new(consume(:integer).value.to_i)
-  end
-
-  def parse_call
-    name = consume(:identifier).value
-    arg_exprs = parse_arg_exprs
-    CallNode.new(name, arg_exprs)
-  end
-  def parse_arg_name
-    arg_names=[]
-    consume(:oparen)
-    if peek(:identifier)
-      arg_names << consume(:identifier).value
-      while peek(:comma)
-        consume(:comma)
-        arg_names << consume(:identifier).value
-      end
-    end
-    consume(:cparen)
-    arg_names
-  end
-
-  def parse_var_ref
-    VarRefNode.new(consume(:identifier).value)
-  end
-
-
-  def parse_arg_exprs
-    arg_exprs = []
-
-    consume(:oparen)
-    unless peek(:cparen)
-      arg_exprs << parse_expr
-      while peek(:comma)
-        consume(:comma)
-        arg_exprs << parse_expr
-      end
-    end
-    consume(:cparen)
-
-    arg_exprs
-  end
-  def consume(expected_type)
-    token = @tokens.shift
-    if token.type == expected_type
-      token
-    else
-      raise RuntimeError.new(
-        "Expected token type #{expected_type.inspect} but got #{token.type.inspect}"
-      )
-    end
-  end
-
-  def peek(expected_type, offset=0)
-    @tokens.fetch(offset).type == expected_type
-  end
-end
-
-class Generator
-  def generate(node)
-    case node
-    when DefNode
-      "function #{node.name}(#{node.arg_names.join(",")}){\n\treturn #{generate(node.body)}\n}"
-    when IntegerNode
-      node.value
-    when CallNode
-      "#{node.name}(#{node.arg_exprs.map { |expr| generate(expr) }.join(",")})"
-    when VarRefNode
-      node.value
-    else
-      raise RuntimeError.new("Unexpected node type: #{node.class}")
-    end
-  end
-end
-
-DefNode = Struct.new(:name, :arg_names, :body)
-IntegerNode = Struct.new(:value)
-CallNode = Struct.new(:name, :arg_exprs)
-VarRefNode = Struct.new(:value)
-Token = Struct.new(:type, :value)
-
-#Recieving File Name from User
-puts "Enter the file name"
-file_name = gets.chomp.to_s
-
-# Checking if the file exists
-unless File.exist?(file_name)
-  raise RuntimeError.new("#{file_name} not found")
-end
-
-# Tokenizing the code
-tokens = Tokenizer.new(File.read(file_name)).tokenize
-
-# Parsing the token tree
-tree = Parser.new(tokens).parse
-
-# Generating the code
-generated_code = Generator.new.generate(tree)
-
-# Adding runtime and test code
-RUNTIME = "function add(x,y){ return x + y};"
-TEST = "console.log(f(1,2));"
-
-# Outputting the final code in JS to a file.
-File.open('output.js', 'w') do |file|
-  file.puts [RUNTIME,generated_code,TEST].join("\n")
-end
-
-puts "Code has been generated in output.js"
+```sh
+git clone https://github.com/yourusername/markleft.git
+cd markleft
 ```
+
+## Usage
+
+1. **Prepare Your Markdown File**: Create a Markdown file with the content you want to convert.
+
+2. **Run MarkLeft**: Use the provided Ruby script to tokenize and parse your Markdown file.
+
+```sh
+ruby markleft-main.rb
+```
+
+3. **View the Output**: The script will output the tokens and the node tree, representing the structure of your Markdown content.
+
+## Example
+
+Given a sample Markdown file `sample.md`:
+
+```markdown
+This is a sample *Markdown* file
+**bold** yippee!
+```
+
+Running MarkLeft will produce the following output:
+
+```
+Tokens Recognized
+#<struct Token type=:text, value="This is a sample ">
+#<struct Token type=:italics, value="*Markdown*">
+#<struct Token type=:text, value=" file">
+#<struct Token type=:newline, value="\n">
+#<struct Token type=:bold, value="**bold**">
+#<struct Token type=:text, value=" yippee!">
+
+Node Tree
+#<struct TextNode value="This is a sample ">
+#<struct ItalicsNode value="*Markdown*">
+#<struct TextNode value=" file">
+#<struct NewlineNode>
+#<struct BoldNode value="**bold**">
+#<struct TextNode value=" yippee!">
+```
+
+## Contributing
+
+We welcome contributions to enhance MarkLeft. Please fork the repository and submit pull requests with your improvements.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Contact
+
+For any questions or feedback, please contact [contact@suvangs.tech](mailto:contact@suvangs.tech).
+
+---
+
+MarkLeft: Extending Markdown to new heights!
