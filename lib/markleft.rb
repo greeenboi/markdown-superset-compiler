@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cli/ui"
+require "fileutils"
 require_relative "markleft/version"
 
 module Markleft
@@ -147,29 +149,97 @@ module Markleft
 
   # ----------------- Main Block ----------------- #
 
-  puts "Enter the file name"
-  file_name = gets.chomp.to_s
+  # puts "Enter the file name"
+  # file_name = gets.chomp.to_s
+  #
+  # raise "#{file_name} not found" unless File.exist?(file_name)
+  #
+  # myfile = File.read(file_name)
+  # puts myfile
+  #
+  # tokenizer = Tokenizer.new(myfile)
+  #
+  # tokens = tokenizer.tokenize
+  # puts "Tokens Recognized"
+  # tokens.each do |token|
+  #   puts token
+  # end
+  #
+  # parser = Parser.new(tokens)
+  # node_tree = parser.parse
+  # puts "Node Tree"
+  # node_tree.each do |node|
+  #   puts node
+  # end
+  #
+  # generator = Generator.new.generate_all(node_tree)
+  # puts generator
 
-  raise "#{file_name} not found" unless File.exist?(file_name)
+  CLI::UI::StdoutRouter.enable
 
-  myfile = File.read(file_name)
-  puts myfile
+  Token = Struct.new(:type, :value)
+  BoldNode = Struct.new(:value)
+  ItalicsNode = Struct.new(:value)
+  NewlineNode = Struct.new(:value)
+  TextNode = Struct.new(:value)
 
-  tokenizer = Tokenizer.new(myfile)
-
-  tokens = tokenizer.tokenize
-  puts "Tokens Recognized"
-  tokens.each do |token|
-    puts token
+  def list_md_files
+    Dir.glob("*.md")
   end
 
-  parser = Parser.new(tokens)
-  node_tree = parser.parse
-  puts "Node Tree"
-  node_tree.each do |node|
-    puts node
+  def select_md_file(files)
+    CLI::UI::Prompt.ask("Select a markdown file to process:") do |handler|
+      files.each do |file|
+        handler.option(file) { file }
+      end
+    end
   end
 
-  generator = Generator.new.generate_all(node_tree)
-  puts generator
+  def process_file(file_name)
+    myfile = File.read(file_name)
+    html_content = nil
+
+    CLI::UI::SpinGroup.new do |spin_group|
+      spin_group.add("Tokenizing") do |spinner|
+        tokenizer = Tokenizer.new(myfile)
+        @tokens = tokenizer.tokenize
+        spinner.update_title("Tokenizing complete")
+      end
+
+      spin_group.add("Parsing") do |spinner|
+        parser = Parser.new(@tokens)
+        @node_tree = parser.parse
+        spinner.update_title("Parsing complete")
+      end
+
+      spin_group.add("Generating HTML") do |spinner|
+        generator = Generator.new.generate_all(@node_tree)
+        html_content = generator
+        spinner.update_title("HTML generation complete")
+      end
+    end.wait
+
+    html_content
+  end
+
+  def save_html(file_name, content)
+    html_file_name = file_name.sub(/\.md$/, ".html")
+    File.write(html_file_name, content)
+    html_file_name
+  end
+
+  CLI::UI::Frame.open("Markdown to HTML Converter") do
+    files = list_md_files
+    if files.empty?
+      puts "No markdown files found in the current directory."
+    else
+      selected_file = select_md_file(files)
+      puts "Processing file: #{selected_file}"
+      html_content = process_file(selected_file)
+      puts "Generated HTML content:"
+      puts html_content
+      saved_file = save_html(selected_file, html_content)
+      puts "HTML content saved to: #{saved_file}"
+    end
+  end
 end
