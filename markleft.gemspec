@@ -3,7 +3,7 @@
 require_relative "lib/markleft/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "Markleft"
+  spec.name = "markleft"
   spec.version = Markleft::VERSION
   spec.authors = ["greeenboi"]
   spec.email = ["suvan.gowrishanker.204@gmail.com"]
