@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    markleft (0.1.1)
+    markleft (0.1.2)
 
 GEM
   remote: https://rubygems.org/
