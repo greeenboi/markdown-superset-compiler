@@ -7,6 +7,6 @@ sample-code.md
 /pkg/
 /spec/reports/
 /tmp/
-*.gem
+.gem
 sample.md
-*.html
+.html
