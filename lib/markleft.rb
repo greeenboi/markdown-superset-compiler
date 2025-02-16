@@ -8,6 +8,12 @@ module Markleft
   # ----------------- Tokenizer Module ----------------- #
   class Tokenizer
     TOKEN_TYPES = [
+      [:heading1, /^# .+/],
+      [:heading2, /^## .+/],
+      [:heading3, /^### .+/],
+      [:heading4, /^#### .+/],
+      [:heading5, /^##### .+/],
+      [:heading6, /^###### .+/],
       [:bold, /((?<!\s)\*\*(?!\s)(?:[^*]+?|(?:[^*]*(?:(?:\*[^*]*){2})+?)+?)(?<!\s)\*\*)/],
       [:italics, /((?<!\s)\*(?!\s)(?:(?:[^**]*(?:(?:\*\*[^**]*){2})+?)+?|[^**]+?)(?<!\s)\*)/],
       [:newline, /(\r\n|\r|\n)/],
@@ -63,6 +69,18 @@ module Markleft
         parse_newline
       when :text
         parse_text
+      when :heading1
+        parse_heading(1)
+      when :heading2
+        parse_heading(2)
+      when :heading3
+        parse_heading(3)
+      when :heading4
+        parse_heading(4)
+      when :heading5
+        parse_heading(5)
+      when :heading6
+        parse_heading(6)
       else
         raise "Unexpected token type: #{@tokens.first.type}"
       end
@@ -81,6 +99,11 @@ module Markleft
     def parse_newline
       consume(:newline)
       NewlineNode.new
+    end
+
+    def parse_heading(level)
+      consume(:"heading#{level}")
+      HeadingNode.new("Heading", level)
     end
 
     def parse_text
@@ -111,6 +134,8 @@ module Markleft
         generate_newline(node)
       when TextNode
         generate_text(node)
+      when HeadingNode
+        generate_heading(node)
       else
         raise "Unexpected node type: #{node.class}"
       end
@@ -126,6 +151,10 @@ module Markleft
 
     def generate_newline(_node)
       "<br>"
+    end
+
+    def generate_heading(node)
+      "<h#{node.level}>#{node.value}</h#{node.level}>"
     end
 
     def generate_text(node)
@@ -146,6 +175,7 @@ module Markleft
   ItalicsNode = Struct.new(:value)
   NewlineNode = Struct.new(:value)
   TextNode = Struct.new(:value)
+  HeadingNode = Struct.new(:value, :level)
 
   # ----------------- Main Block ----------------- #
 

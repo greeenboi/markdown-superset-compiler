@@ -6,6 +6,8 @@ module Markleft
     def consume: (Symbol) -> untyped
     def parse: -> Array[untyped]
     def parse_bold: -> untyped
+
+    def parse_heading: -> untyped
     def parse_italics: -> untyped
     def parse_newline: -> untyped
     def parse_node: -> untyped
