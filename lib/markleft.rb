@@ -3,6 +3,7 @@
 require "cli/ui"
 require "fileutils"
 require_relative "markleft/version"
+require 'optparse'
 
 module Markleft
   # ----------------- Tokenizer Module ----------------- #
@@ -226,12 +227,41 @@ module Markleft
     html_file_name
   end
 
-  CLI::UI::Frame.open("Markdown to HTML Converter") do
+  CLI::UI::Frame.open("Markleft") do
+    puts "Markleft version: #{Markleft::VERSION}"
+    puts "Ruby version: #{RUBY_VERSION}"
+    puts "Developer: Suvan Gowri Shanker"
+    puts "GitHub: https://github.com/greeenboi"
+
+    options = {}
+    OptionParser.new do |opts|
+      opts.banner = <<~BANNER
+        Usage: markleft [options]
+
+        This utility converts Markdown files in the current directory to HTML.
+        It provides an interactive UI to select files unless a file is specified.
+        Use the following flags for quick access:
+
+      BANNER
+      opts.separator ""
+      opts.separator "Examples:"
+      opts.separator "  markleft --file example.md"
+      opts.separator "  markleft --help"
+      opts.separator ""
+      opts.on("--help", "Show help information") do
+        puts opts
+        exit
+      end
+      opts.on("--file FILE", "Specify a markdown file") do |filename|
+        options[:file] = filename
+      end
+    end.parse!
+
     files = list_md_files
     if files.empty?
       puts "No markdown files found in the current directory."
     else
-      selected_file = select_md_file(files)
+      selected_file = options[:file] || select_md_file(files)
       puts "Processing file: #{selected_file}"
       html_content = process_file(selected_file)
       puts "Generated HTML content:"
