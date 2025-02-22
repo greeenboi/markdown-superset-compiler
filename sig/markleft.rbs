@@ -3,6 +3,7 @@ module Markleft
   HeadingNode: untyped
   ItalicsNode: untyped
   NewlineNode: untyped
+  StrikethroughNode: untyped
   TextNode: untyped
   Token: untyped
   VERSION: String
@@ -11,7 +12,7 @@ module Markleft
   @node_tree: untyped
 
   def self.list_md_files: -> Array[String]
-  def self.select_md_file: (Array[String]) -> String
+  def self.select_md_file: (Array[String]) -> (String | Array[String])
   def self.process_file: (String) -> String
   def self.save_html: (String, String) -> String
 end

@@ -15,6 +15,7 @@ module Markleft
       [:heading4, /^#### .+/],
       [:heading5, /^##### .+/],
       [:heading6, /^###### .+/],
+      [:strikethrough, /((?<!\s)~~(?!\s)(?:[^~]+?|(?:[^~]*(?:(?:~[^~]*){2})+?)+?)(?<!\s)~~)/],
       [:bold, /((?<!\s)\*\*(?!\s)(?:[^*]+?|(?:[^*]*(?:(?:\*[^*]*){2})+?)+?)(?<!\s)\*\*)/],
       [:italics, /((?<!\s)\*(?!\s)(?:(?:[^**]*(?:(?:\*\*[^**]*){2})+?)+?|[^**]+?)(?<!\s)\*)/],
       [:newline, /(\r\n|\r|\n)/],
@@ -82,6 +83,8 @@ module Markleft
         parse_heading(5)
       when :heading6
         parse_heading(6)
+      when :strikethrough
+        parse_strikethrough
       else
         raise "Unexpected token type: #{@tokens.first.type}"
       end
@@ -105,6 +108,11 @@ module Markleft
     def parse_heading(level)
       consume(:"heading#{level}")
       HeadingNode.new("Heading", level)
+    end
+
+    def parse_strikethrough
+      value = consume(:strikethrough).value
+      StrikethroughNode.new(value)
     end
 
     def parse_text
@@ -137,6 +145,8 @@ module Markleft
         generate_text(node)
       when HeadingNode
         generate_heading(node)
+      when StrikethroughNode
+        generate_strikethrough(node)
       else
         raise "Unexpected node type: #{node.class}"
       end
@@ -158,6 +168,10 @@ module Markleft
       "<h#{node.level}>#{node.value}</h#{node.level}>"
     end
 
+    def generate_strikethrough(node)
+      "<del>#{node.value}</del>"
+    end
+
     def generate_text(node)
       node.value
     end
@@ -177,6 +191,7 @@ module Markleft
   NewlineNode = Struct.new(:value)
   TextNode = Struct.new(:value)
   HeadingNode = Struct.new(:value, :level)
+  StrikethroughNode = Struct.new(:value)
 
   # ----------------- Main Block ----------------- #
 

@@ -11,6 +11,7 @@ module Markleft
     def parse_italics: -> untyped
     def parse_newline: -> untyped
     def parse_node: -> untyped
+    def parse_strikethrough: -> untyped
     def parse_text: -> untyped
   end
 end
