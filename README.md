@@ -7,19 +7,16 @@
 
 MarkLeft is a powerful and flexible tool designed to extend the capabilities of traditional Markdown-to-HTML compilers. It introduces additional syntax and features to enhance the expressiveness and functionality of Markdown documents.
 
-## Project Structure
+> [!TIP]
+> MarkLeft is a work in progress and is currently under development. Please check back for updates and new features.
+> You are still free to use it and contribute to it.
 
-- `Gemfile` and `Gemfile.lock`: Manage gem dependencies.
-- `markleft-main.rb`: Script for converting Markdown to HTML.
-- `terminal.rb`: TUI for converting Markdown to HTML.
-- `lib/`: Contains the tokenizer, parser, and generator classes.
 
 ## Features
 
-- **Extended Syntax**: Supports additional formatting options such as bold, italics, and more.
-- **Custom Nodes**: Allows the creation of custom nodes to represent different types of content.
-- **Tokenization and Parsing**: Efficiently tokenizes and parses Markdown content into a structured node tree.
-- **Easy Integration**: Can be easily integrated into existing projects and workflows.
+- **Superfast**: MarkLeft is designed to be fast and efficient, processing Markdown files quickly and generating HTML output in an instant.
+- **Extensible**: MarkLeft is highly extensible, allowing users to define custom syntax and features to suit their needs.
+- **Customizable**: MarkLeft provides a range of options and settings to customize the output, including themes, styles, and more.(coming soon)
 
 ## Prerequisites
 
@@ -30,42 +27,43 @@ MarkLeft is a powerful and flexible tool designed to extend the capabilities of 
 
 To install MarkLeft, clone the repository and navigate to the project directory:
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/markdown-to-html.git
-   cd markdown-to-html
-   ```
+#### Gem
 
-2. Install the dependencies:
-   ```sh
-   bundle install
-   ```
+```sh
+gem install markleft
+```
+
+#### Repository
+
+```sh
+git clone git@github.com:greeenboi/markdown-superset-compiler.git
+cd markdown-superset-compiler
+```
 
 ## Running the Converter
 
-### Using `markleft-main.rb`
+#### Using Gem
+
+```shell
+markleft
+```
+
+0r 
+
+```shell
+markleft --file <filename>
+```
+
+#### Using `markleft-main.rb`
 
 The `markleft-main.rb` file is a simple script that reads a Markdown file, tokenizes it, parses it, and generates HTML output.
 
 1. Run the script:
    ```sh
-   ruby markleft-main.rb
+   ruby lib/markleft.rb
    ```
-
-2. Enter the name of the Markdown file when prompted.
-
-### Using `terminal.rb` (TUI)
-
-The `terminal.rb` file provides a Text User Interface (TUI) for selecting and processing Markdown files.
-
-1. Run the script:
-   ```sh
-   ruby terminal.rb
-   ```
-
+   
 2. Follow the prompts to select a Markdown file and process it.
-
-
 
 ## Example
 

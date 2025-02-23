@@ -3,11 +3,19 @@
 require "cli/ui"
 require "fileutils"
 require_relative "markleft/version"
+require 'optparse'
 
 module Markleft
   # ----------------- Tokenizer Module ----------------- #
   class Tokenizer
     TOKEN_TYPES = [
+      [:heading1, /^# .+/],
+      [:heading2, /^## .+/],
+      [:heading3, /^### .+/],
+      [:heading4, /^#### .+/],
+      [:heading5, /^##### .+/],
+      [:heading6, /^###### .+/],
+      [:strikethrough, /((?<!\s)~~(?!\s)(?:[^~]+?|(?:[^~]*(?:(?:~[^~]*){2})+?)+?)(?<!\s)~~)/],
       [:bold, /((?<!\s)\*\*(?!\s)(?:[^*]+?|(?:[^*]*(?:(?:\*[^*]*){2})+?)+?)(?<!\s)\*\*)/],
       [:italics, /((?<!\s)\*(?!\s)(?:(?:[^**]*(?:(?:\*\*[^**]*){2})+?)+?|[^**]+?)(?<!\s)\*)/],
       [:newline, /(\r\n|\r|\n)/],
@@ -63,6 +71,20 @@ module Markleft
         parse_newline
       when :text
         parse_text
+      when :heading1
+        parse_heading(1)
+      when :heading2
+        parse_heading(2)
+      when :heading3
+        parse_heading(3)
+      when :heading4
+        parse_heading(4)
+      when :heading5
+        parse_heading(5)
+      when :heading6
+        parse_heading(6)
+      when :strikethrough
+        parse_strikethrough
       else
         raise "Unexpected token type: #{@tokens.first.type}"
       end
@@ -81,6 +103,16 @@ module Markleft
     def parse_newline
       consume(:newline)
       NewlineNode.new
+    end
+
+    def parse_heading(level)
+      consume(:"heading#{level}")
+      HeadingNode.new("Heading", level)
+    end
+
+    def parse_strikethrough
+      value = consume(:strikethrough).value
+      StrikethroughNode.new(value)
     end
 
     def parse_text
@@ -111,6 +143,10 @@ module Markleft
         generate_newline(node)
       when TextNode
         generate_text(node)
+      when HeadingNode
+        generate_heading(node)
+      when StrikethroughNode
+        generate_strikethrough(node)
       else
         raise "Unexpected node type: #{node.class}"
       end
@@ -126,6 +162,14 @@ module Markleft
 
     def generate_newline(_node)
       "<br>"
+    end
+
+    def generate_heading(node)
+      "<h#{node.level}>#{node.value}</h#{node.level}>"
+    end
+
+    def generate_strikethrough(node)
+      "<del>#{node.value}</del>"
     end
 
     def generate_text(node)
@@ -146,6 +190,8 @@ module Markleft
   ItalicsNode = Struct.new(:value)
   NewlineNode = Struct.new(:value)
   TextNode = Struct.new(:value)
+  HeadingNode = Struct.new(:value, :level)
+  StrikethroughNode = Struct.new(:value)
 
   # ----------------- Main Block ----------------- #
 
@@ -196,12 +242,41 @@ module Markleft
     html_file_name
   end
 
-  CLI::UI::Frame.open("Markdown to HTML Converter") do
+  CLI::UI::Frame.open("Markleft") do
+    puts "Markleft version: #{Markleft::VERSION}"
+    puts "Ruby version: #{RUBY_VERSION}"
+    puts "Developer: Suvan Gowri Shanker"
+    puts "GitHub: https://github.com/greeenboi"
+
+    options = {}
+    OptionParser.new do |opts|
+      opts.banner = <<~BANNER
+        Usage: markleft [options]
+
+        This utility converts Markdown files in the current directory to HTML.
+        It provides an interactive UI to select files unless a file is specified.
+        Use the following flags for quick access:
+
+      BANNER
+      opts.separator ""
+      opts.separator "Examples:"
+      opts.separator "  markleft --file example.md"
+      opts.separator "  markleft --help"
+      opts.separator ""
+      opts.on("--help", "Show help information") do
+        puts opts
+        exit
+      end
+      opts.on("--file FILE", "Specify a markdown file") do |filename|
+        options[:file] = filename
+      end
+    end.parse!
+
     files = list_md_files
     if files.empty?
       puts "No markdown files found in the current directory."
     else
-      selected_file = select_md_file(files)
+      selected_file = options[:file] || select_md_file(files)
       puts "Processing file: #{selected_file}"
       html_content = process_file(selected_file)
       puts "Generated HTML content:"

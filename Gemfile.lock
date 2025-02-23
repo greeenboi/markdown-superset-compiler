@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    markleft (0.1.2)
+    markleft (0.1.5)
 
 GEM
   remote: https://rubygems.org/
@@ -38,6 +38,7 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw-ucrt
   x86_64-linux
 
 DEPENDENCIES
